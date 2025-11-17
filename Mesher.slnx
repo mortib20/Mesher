@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="Mesher.Global/Mesher.Global.csproj" />
   <Project Path="Mesher.Main/Mesher.Main.csproj" />
+  <Project Path="Mesher.Mesh/Mesher.Mesh.csproj" />
 </Solution>
