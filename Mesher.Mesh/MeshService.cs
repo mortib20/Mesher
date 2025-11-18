@@ -1,14 +1,12 @@
-﻿using System.Buffers;
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
-using Mesher.Mesh.Models;
+﻿using System.Text;
+using Mesher.Database;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 
 namespace Mesher.Mesh;
 
-public class MeshService(ILogger<MeshService> logger) : Global.Service.AviatorBackgroundService(logger)
+public class MeshService(ILogger<MeshService> logger, IServiceProvider serviceProvider) : Global.Service.AviatorBackgroundService(logger)
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -17,15 +15,24 @@ public class MeshService(ILogger<MeshService> logger) : Global.Service.AviatorBa
         using var mqttClient = mqttFactory.CreateMqttClient();
         var mqttClientOptions = new MqttClientOptionsBuilder().WithTcpServer("192.168.168.3").Build();
 
-        mqttClient.ApplicationMessageReceivedAsync += e =>
+        mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
+            await using var serviceScope = serviceProvider.CreateAsyncScope();
+            await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MesherContext>();
+            
             logger.LogInformation("Received application message");
             var mqttPayload = e.ApplicationMessage.Payload;
-            var meshPayload = JsonSerializer.Deserialize<MeshPayload>(mqttPayload.ToArray());
-            
-            Console.WriteLine();
-            
-            return Task.CompletedTask;
+            var meshJson = Encoding.UTF8.GetString(mqttPayload);
+            // var meshPayload = JsonSerializer.Deserialize<MeshPayload>(mqttPayload.ToArray());
+
+            var entry = new DbMeshMessage()
+            {
+                RawMessage = meshJson
+            };
+
+            // Maybe move this to a handle via some pipe
+            await dbContext.MeshMessages.AddAsync(entry, stoppingToken);
+            await dbContext.SaveChangesAsync(stoppingToken);
         };
 
         await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
@@ -38,7 +45,7 @@ public class MeshService(ILogger<MeshService> logger) : Global.Service.AviatorBa
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(1000, stoppingToken).ConfigureAwait(false);
+            await Task.Delay(100, stoppingToken).ConfigureAwait(false);
         }
     }
 }

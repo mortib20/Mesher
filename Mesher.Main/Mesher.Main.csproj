@@ -7,18 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MQTTnet" />
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Serilog.Enrichers.Demystifier" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Mesher.Database\Mesher.Database.csproj" />
       <ProjectReference Include="..\Mesher.Global\Mesher.Global.csproj" />
       <ProjectReference Include="..\Mesher.Mesh\Mesher.Mesh.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Config\" />
     </ItemGroup>
 
 </Project>

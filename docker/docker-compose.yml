@@ -1,0 +1,13 @@
+﻿services:
+  database:
+    container_name: database
+    restart: unless-stopped
+    image: postgres
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+#    volumes:
+#      - ./data:/
+    environment:
+      POSTGRES_USER: mesher
+      POSTGRES_PASSWORD: changeme

@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Mesher.Database\Mesher.Database.csproj" />
       <ProjectReference Include="..\Mesher.Global\Mesher.Global.csproj" />
     </ItemGroup>
 
