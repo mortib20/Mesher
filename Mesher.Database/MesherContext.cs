@@ -10,7 +10,9 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
 {
     public DbSet<DbMeshMessage> MeshMessages { get; init; }
     public DbSet<DbMeshHardware> MeshHardwares { get; init; }
-    // public DbSet<DbMeshNodeInfo> MeshNodeInfos { get; init; }
+    
+    // Views
+    public DbSet<DbMeshNodeInfo> MeshNodeInfo { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,11 +62,11 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
         });
 
         // MeshNodeInfo
-        // modelBuilder.Entity<DbMeshNodeInfo>(eb =>
-        // {
-        //     eb.HasNoKey();
-        //     eb.ToView("MeshNodeInfos");
-        // });
+        modelBuilder.Entity<DbMeshNodeInfo>(eb =>
+        {
+            eb.HasNoKey();
+            eb.ToView("MeshNodeInfo");
+        });
     }
 }
 
@@ -103,9 +105,12 @@ public class DbMeshNodeInfo
     public required string Hardware { get; init; }
 
     public Instant LastSeen { get; init; }
+}
 
+[Keyless]
+public class DbMeshPosition
+{
     // public double Latitude { get; init; }
     // public double Longitude { get; init; }
     // public int Altitude { get; init; }
-
 }
