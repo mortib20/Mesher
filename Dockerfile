@@ -6,20 +6,26 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["Directory.Packages.props", "."]
+# Copy dependency-only files for caching
+COPY Directory.Packages.props .
 
-COPY ["Mesher.Main/Mesher.Main.csproj", "Mesher.Main/"]
-COPY ["Mesher.Global/Mesher.Global.csproj", "Mesher.Global/"]
-COPY ["Mesher.Mesh/Mesher.Mesh.csproj", "Mesher.Mesh/"]
+# Copy project files only
+COPY Mesher.Main/Mesher.Main.csproj Mesher.Main/
+COPY Mesher.Global/Mesher.Global.csproj Mesher.Global/
+COPY Mesher.Mesh/Mesher.Mesh.csproj Mesher.Mesh/
 
-RUN dotnet restore "Mesher.Main/Mesher.Main.csproj"
+# Restore using only the project files
+RUN dotnet restore Mesher.Main/Mesher.Main.csproj
+
+# Copy the rest of the source
 COPY . .
-WORKDIR "/src/Mesher.Main"
-RUN dotnet build "Mesher.Main.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+WORKDIR /src/Mesher.Main
+RUN dotnet build Mesher.Main.csproj -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Mesher.Main.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish Mesher.Main.csproj -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
