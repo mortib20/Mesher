@@ -40,10 +40,10 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
             
             // Other computed
             
-            eb.Property<double>("SNR")
+            eb.Property<double?>("SNR")
                 .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'snr' AS double precision))", stored: true);
             
-            eb.Property<double>("RSSI")
+            eb.Property<double?>("RSSI")
                 .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'rssi' AS double precision))", stored: true);
             
             eb.Property<long>("Channel")
