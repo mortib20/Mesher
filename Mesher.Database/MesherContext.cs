@@ -13,6 +13,7 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
     
     // Views
     public DbSet<DbMeshNodeInfo> MeshNodeInfo { get; init; }
+    public DbSet<DbMeshPosition> MeshPositions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,6 +68,12 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
             eb.HasNoKey();
             eb.ToView("MeshNodeInfo");
         });
+        
+        modelBuilder.Entity<DbMeshPosition>(eb =>
+        {
+            eb.HasNoKey();
+            eb.ToView("MeshPosition");
+        });
     }
 }
 
@@ -110,7 +117,11 @@ public class DbMeshNodeInfo
 [Keyless]
 public class DbMeshPosition
 {
-    // public double Latitude { get; init; }
-    // public double Longitude { get; init; }
-    // public int Altitude { get; init; }
+    public int From { get; init; }
+    public double Latitude { get; init; }
+    public double Longitude { get; init; }
+    public int? Altitude { get; init; }
+    public int PrecisionBits { get; init; }
+    public Instant? Time { get; init; }
+    public Instant CreatedAt { get; init; }
 }
