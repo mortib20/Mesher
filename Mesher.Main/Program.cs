@@ -1,4 +1,5 @@
 using Mesher.Database;
+using Mesher.Database.Patch.Implementation;
 using Mesher.Mesh;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -44,6 +45,8 @@ public abstract class Program
             opt.EnableSensitiveDataLogging();
         });
 
+        builder.Services.AddScoped<MeshHardwarePatch>();
+
         builder.Services.AddHostedService<MeshService>();
         
         var app = builder.Build();
@@ -54,19 +57,19 @@ public abstract class Program
             var services = scope.ServiceProvider;
 
             var logger = services.GetRequiredService<ILogger<Program>>();
+            var cancellationToken = CancellationToken.None;
             
             logger.LogInformation("Applying migrations");
             
             var context = services.GetRequiredService<MesherContext>();
 
-            if (app.Environment.IsDevelopment())
-            {
-                await context.Database.EnsureCreatedAsync();
-            }
-            else
-            {
-                await context.Database.MigrateAsync();
-            }
+            await context.Database.MigrateAsync(cancellationToken);
+
+            logger.LogInformation("Applying Patches");
+            
+            var hardwarePatch = services.GetRequiredService<MeshHardwarePatch>();
+
+            await hardwarePatch.ApplyPatch(context, cancellationToken);
         }
 
         await app.RunAsync();
