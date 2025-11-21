@@ -49,6 +49,9 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
             eb.Property<long>("Channel")
                 .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'channel' AS bigint))", stored: true);
             
+            eb.Property<long?>("HopsAway")
+                .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'hops_away' AS bigint))", stored: true);
+            
             eb.HasIndex(e => e.CreatedAt)
                 .HasDatabaseName("IX_MeshMessages_CreatedAt_DESC")
                 .HasAnnotation("Npgsql:IndexSortOrder", new[] { SortOrder.Descending });
@@ -110,6 +113,8 @@ public class DbMeshNodeInfo
     
     public int Role { get; init; }
     public required string Hardware { get; init; }
+    
+    public int HopsAway { get; init; }
 
     public Instant LastSeen { get; init; }
 }
