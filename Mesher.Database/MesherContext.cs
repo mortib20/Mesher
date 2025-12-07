@@ -20,13 +20,13 @@ public class MesherContext(DbContextOptions<MesherContext> options) : DbContext(
         // MeshMessages
         modelBuilder.Entity<DbMeshMessage>(eb =>
         {
-            eb.Property<long>("From")
+            eb.Property<long?>("From")
                 .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'from' AS bigint))", stored: true);
 
             eb.HasIndex("From")
                 .HasDatabaseName("IX_MeshMessages_From");
             
-            eb.Property<long>("To")
+            eb.Property<long?>("To")
                 .HasComputedColumnSql("(CAST(\"RawMessage\" ->> 'to' AS bigint))", stored: true);
 
             eb.HasIndex("To")

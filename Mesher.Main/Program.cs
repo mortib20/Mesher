@@ -1,6 +1,7 @@
 using Mesher.Database;
 using Mesher.Database.Patch.Implementation;
 using Mesher.Mesh;
+using Mesher.Mesh.Config;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -28,9 +29,15 @@ public abstract class Program
                 outputTemplate: logFormat
             )
             .CreateLogger();
-        
+
         var builder = WebApplication.CreateBuilder(args);
-        
+
+        // Options
+        builder.Services.AddOptions<MeshServiceMQTTConfig>()
+            .Bind(builder.Configuration.GetSection(MeshServiceMQTTConfig.Section))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         // Logging
         builder.Services.AddSerilog();
 
@@ -48,9 +55,9 @@ public abstract class Program
         builder.Services.AddScoped<MeshHardwarePatch>();
 
         builder.Services.AddHostedService<MeshServiceMQTT>();
-        
+
         var app = builder.Build();
-        
+
         // Database
         await using (var scope = app.Services.CreateAsyncScope())
         {
@@ -58,15 +65,15 @@ public abstract class Program
 
             var logger = services.GetRequiredService<ILogger<Program>>();
             var cancellationToken = CancellationToken.None;
-            
+
             logger.LogInformation("Applying migrations");
-            
+
             var context = services.GetRequiredService<MesherContext>();
 
             await context.Database.MigrateAsync(cancellationToken);
 
             logger.LogInformation("Applying Patches");
-            
+
             var hardwarePatch = services.GetRequiredService<MeshHardwarePatch>();
 
             await hardwarePatch.ApplyPatch(context, cancellationToken);
