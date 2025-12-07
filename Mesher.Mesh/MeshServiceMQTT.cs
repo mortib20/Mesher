@@ -6,7 +6,8 @@ using MQTTnet;
 
 namespace Mesher.Mesh;
 
-public class MeshService(ILogger<MeshService> logger, IServiceProvider serviceProvider) : Global.Service.AviatorBackgroundService(logger)
+// ReSharper disable once InconsistentNaming
+public class MeshServiceMQTT(ILogger<MeshServiceMQTT> logger, IServiceProvider serviceProvider) : Global.Service.AviatorBackgroundService(logger)
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -34,7 +35,7 @@ public class MeshService(ILogger<MeshService> logger, IServiceProvider servicePr
             await dbContext.MeshMessages.AddAsync(entry, stoppingToken);
             await dbContext.SaveChangesAsync(stoppingToken);
         };
-
+        
         await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
 
         var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder().WithTopicFilter("msh/2/json/#").Build();

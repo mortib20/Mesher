@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Meshtastic" />
       <PackageReference Include="MQTTnet" />
     </ItemGroup>
 

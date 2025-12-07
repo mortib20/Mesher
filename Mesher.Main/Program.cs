@@ -20,7 +20,7 @@ public abstract class Program
 
         Log.Logger = new LoggerConfiguration()
             .Enrich.WithDemystifiedStackTraces()
-            .WriteTo.Console(LogEventLevel.Information, logFormat)
+            .WriteTo.Console(LogEventLevel.Verbose, logFormat)
             .WriteTo.File(
                 Path.Combine(logPath, "aviator.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Verbose,
@@ -47,7 +47,7 @@ public abstract class Program
 
         builder.Services.AddScoped<MeshHardwarePatch>();
 
-        builder.Services.AddHostedService<MeshService>();
+        builder.Services.AddHostedService<MeshServiceMQTT>();
         
         var app = builder.Build();
         
